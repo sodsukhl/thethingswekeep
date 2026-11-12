@@ -1,0 +1,618 @@
+/* =========================================================
+   The Things We Keep — styles
+   Every number here is in Figma pixels (1920 x 1080 frame).
+   ========================================================= */
+
+:root {
+  --bg: #433131;          /* page colour around the screen */
+  --hall-wall: #a8928f;   /* hallway wall (fallback if image missing) */
+  --room-wall: #a08ba2;   /* bedroom wall (fallback if image missing) */
+  --plum: #795c7c;        /* pop-up border + text */
+  --card: #d9d9d9;        /* pop-up fill */
+  --font: "Space Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: var(--font);
+  transition: background .6s ease;
+}
+
+button { font: inherit; cursor: pointer; }
+
+/* ---------- The 1920 x 1080 stage (scaled by script.js) ---------- */
+#stage {
+  position: absolute;
+  left: 0; top: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+}
+
+#panel {
+  position: absolute;
+  left: 175px; top: 65px;
+  width: 1570px; height: 974px;
+  background: #000;
+}
+
+/* ---------- Top + bottom bars ---------- */
+.bar { position: absolute; left: 175px; width: 1570px; color: #fff; }
+.bar-top { top: 65px; height: 53px; }
+.bar-bottom { top: 962px; height: 77px; }
+
+.icon-btn {
+  position: absolute;
+  left: 30px; top: 12px;
+  width: 34px; height: 34px;
+  padding: 3px;
+  background: none; border: 0;
+  color: #fff;
+}
+.icon-btn .mute-x { display: none; }
+.icon-btn.muted .wave { display: none; }
+.icon-btn.muted .mute-x { display: inline; }
+
+.progress {
+  position: absolute;
+  left: 50%; top: 14px;
+  transform: translateX(-50%);
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  opacity: .8;
+}
+
+.dark-label {
+  position: absolute;
+  left: 1351px; top: 12px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 20px;
+}
+.toggle {
+  width: 54px; height: 28px;
+  border: 2px solid #fff; border-radius: 14px;
+  background: transparent;
+  position: relative; padding: 0;
+}
+.toggle .knob {
+  position: absolute; left: 3px; top: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff;
+  transition: transform .25s ease;
+}
+.toggle[aria-checked="true"] .knob { transform: translateX(26px); }
+
+#prompt {
+  position: absolute;
+  left: 35px; top: 11px;
+  margin: 0;
+  font-size: 32px;
+  white-space: nowrap;
+}
+#prompt::after {               /* blinking typewriter cursor */
+  content: "_";
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---------- The framed window (Figma: Frame 7) ---------- */
+#window {
+  position: absolute;
+  left: 210px; top: 118px;
+  width: 1500px; height: 844px;
+  overflow: hidden;
+  background: #000;
+}
+
+.scene {
+  position: absolute; inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .9s ease, visibility 0s linear .9s;
+}
+.scene.active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .9s ease;
+}
+#hallway { background: var(--hall-wall); }
+#bedroom { background: var(--room-wall); }
+
+.scene-bg {
+  position: absolute; left: -35px; top: -35px;
+  width: 1570px; height: 914px;
+  user-select: none; pointer-events: none;
+}
+.deco { position: absolute; pointer-events: none; }
+
+/* ---------- Door ---------- */
+#door {
+  position: absolute;
+  left: 336px; top: -56px;
+  width: 870px; height: 839px;
+  padding: 0; border: 0; background: none;
+  transition: filter .35s ease, transform .35s ease;
+}
+#door img { width: 100%; height: 100%; display: block; pointer-events: none; }
+#door:hover, #door:focus-visible {
+  filter: brightness(1.06) drop-shadow(0 0 18px rgba(255, 228, 180, .85));
+  outline: none;
+}
+#door.opening {
+  transform: scale(1.08);
+  filter: brightness(1.6) drop-shadow(0 0 40px rgba(255, 228, 180, 1));
+  transition: transform .9s ease, filter .9s ease;
+}
+
+/* ---------- Black border drawn ON TOP of the scenes (like Figma's frame stroke) ---------- */
+#window-border {
+  position: absolute;
+  left: 205px; top: 113px;
+  width: 1510px; height: 854px;
+  border: 5px solid #000;
+  pointer-events: none;
+  z-index: 60;
+}
+
+/* ---------- Fade-to-black between scenes ---------- */
+#fade {
+  position: absolute; inset: 0;
+  background: #000;
+  opacity: 0; pointer-events: none;
+  transition: opacity .6s ease;
+  z-index: 50;
+}
+#fade.on { opacity: 1; }
+
+/* ---------- Trinkets ---------- */
+.trinket {
+  position: absolute;
+  padding: 0; border: 0; background: none;
+  transition: transform .25s ease, filter .25s ease;
+}
+.trinket img {
+  position: absolute;
+  max-width: none;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  filter: grayscale(1) brightness(.95);
+  transition: filter 1.4s ease;
+}
+.trinket.seen img { filter: grayscale(0) brightness(1); }
+
+.trinket:hover, .trinket:focus-visible {
+  transform: translateY(-6px);
+  filter: drop-shadow(0 0 10px rgba(255, 240, 200, .9));
+  outline: none;
+}
+.trinket.current {
+  transform: translateY(-6px) scale(1.06);
+  filter: drop-shadow(0 0 14px rgba(255, 240, 200, 1));
+}
+.trinket.just-seen img { animation: pop 1.2s ease; }
+@keyframes pop {
+  40% { transform: scale(1.15); }
+}
+
+/* All trinkets seen: gentle warm glow on the whole shelf */
+#bedroom.complete #shelf-items .trinket {
+  animation: glow 3s ease-in-out infinite;
+}
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 230, 170, .5)); }
+  50%      { filter: drop-shadow(0 0 14px rgba(255, 230, 170, .95)); }
+}
+
+/* ---------- Pop-up (Figma: Rectangle 4, 691 x 603) ---------- */
+#popup {
+  position: absolute;
+  left: 732px; top: 90px;
+  width: 691px; height: 603px;
+  background: var(--card);
+  border: 10px solid var(--plum);
+  border-radius: 59px;
+  color: var(--plum);
+  font-size: 15px;
+  letter-spacing: -1.5px;
+  line-height: 1.35;
+  z-index: 20;
+  opacity: 0;
+  transform: translateY(14px) scale(.98);
+  transition: opacity .35s ease, transform .35s ease;
+}
+#popup.show { opacity: 1; transform: none; }
+#popup[hidden] { display: block; visibility: hidden; }
+
+#popup p, #popup h2 { margin: 0; }
+
+.popup-intro {
+  position: absolute;
+  left: 31px; top: 45px;
+  width: 290px; height: 220px;
+  overflow: auto;
+}
+#popup-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.popup-owner { font-style: italic; margin-bottom: 12px !important; }
+.popup-quote { font-size: 16px; }
+
+/* Figma: Rectangle 6 (285 x 263) */
+.popup-photo {
+  position: absolute;
+  left: 351px; top: 29px;
+  width: 285px; height: 263px;
+  border: 10px solid var(--plum);
+  border-radius: 59px;
+  overflow: hidden;
+  background: var(--card);
+}
+.popup-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.popup-photo .missing {
+  position: static;
+  width: 100%; height: 100%;
+  border: 0;
+}
+
+.popup-p1, .popup-p2 {
+  position: absolute;
+  left: 30px; width: 614px; max-height: 110px;
+  overflow: auto;
+}
+.popup-p1 { top: 313px; }
+.popup-p2 { top: 437px; }
+
+#popup-close {
+  position: absolute;
+  right: -14px; top: -14px;
+  width: 44px; height: 44px;
+  border: 4px solid var(--card); border-radius: 50%;
+  padding: 0;
+  background: var(--plum);
+  color: var(--card);
+  font-size: 26px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3;
+  transition: transform .2s ease;
+}
+#popup-close:hover, #popup-close:focus-visible {
+  transform: scale(1.1) rotate(90deg); outline: none;
+}
+
+/* ---------- Placeholder shown when an image file is missing ---------- */
+.missing {
+  position: absolute;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  border: 2px dashed rgba(0, 0, 0, .35);
+  background: rgba(255, 255, 255, .25);
+  color: rgba(0, 0, 0, .55);
+  font: 13px/1.2 var(--font);
+  padding: 4px;
+}
+.scene-bg.missing { display: none; }
+#door .missing {
+  position: static;
+  width: 100%; height: 100%;
+  background: #eceae6;
+  border: 14px solid #f6f5f2;
+  font-size: 22px;
+}
+.trinket .missing { position: absolute; }
+
+/* ---------- Light / dark mode ----------
+   Dark mode = your Figma design exactly as drawn.
+   Light mode = the same scene, brightened. */
+.scene-bg, #door img, .deco, #shelf-items, #popup { transition: filter .6s ease, background .6s ease; }
+
+body:not(.dark) { --bg: #cdbcb8; --card: #f3eef2; }
+body:not(.dark) .scene-bg,
+body:not(.dark) #door img,
+body:not(.dark) .deco { filter: brightness(1.2) saturate(1.05); }
+body:not(.dark) #shelf-items { filter: brightness(1.12); }
+
+body.dark { --bg: #433131; --card: #d9d9d9; }
+
+/* Respect people who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+}
+
+/* =========================================================
+   Pop-up: photo slideshow + interview audio player
+   ========================================================= */
+.popup-p1 { top: 305px; max-height: 92px; }
+.popup-p2 { top: 405px; max-height: 92px; }
+
+/* Slideshow */
+#slides { position: absolute; inset: 0; }
+.popup-photo .slide {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+.popup-photo .slide.active { opacity: 1; }
+.popup-photo .slide.missing { position: absolute; border: 0; }
+
+.slide-arrow {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  width: 34px; height: 34px;
+  border: 0; border-radius: 50%; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(121, 92, 124, .85);
+  color: #fff;
+  z-index: 2;
+  transition: background .2s ease, transform .2s ease;
+}
+.slide-arrow.prev { left: 8px; }
+.slide-arrow.next { right: 8px; }
+.slide-arrow:hover, .slide-arrow:focus-visible {
+  background: var(--plum);
+  transform: translateY(-50%) scale(1.1);
+  outline: none;
+}
+.slide-count {
+  position: absolute; bottom: 10px; left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 9px; border-radius: 10px;
+  background: rgba(121, 92, 124, .85);
+  color: #fff;
+  font-size: 12px; letter-spacing: 0;
+  z-index: 2;
+}
+.popup-photo.single .slide-arrow,
+.popup-photo.single .slide-count { display: none; }
+
+/* Audio player */
+.audio-player {
+  position: absolute;
+  left: 30px; top: 510px;
+  width: 611px; height: 52px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 16px 0 6px;
+  border: 3px solid var(--plum);
+  border-radius: 26px;
+  color: var(--plum);
+  letter-spacing: -.5px;
+}
+#audio-play {
+  flex: none;
+  width: 36px; height: 36px;
+  border: 0; border-radius: 50%; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--plum);
+  color: var(--card);
+  transition: transform .2s ease;
+}
+#audio-play:hover, #audio-play:focus-visible { transform: scale(1.08); outline: none; }
+#audio-play .i-pause { display: none; }
+.audio-player.playing #audio-play .i-play { display: none; }
+.audio-player.playing #audio-play .i-pause { display: block; }
+
+.audio-label { flex: none; font-size: 13px; font-style: italic; }
+.audio-track {
+  flex: 1;
+  height: 8px; border-radius: 4px;
+  background: rgba(121, 92, 124, .25);
+  position: relative;
+  cursor: pointer;
+}
+.audio-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0;
+  background: var(--plum);
+  border-radius: 4px;
+}
+.audio-time { flex: none; min-width: 88px; text-align: right; font-size: 13px; }
+
+.audio-player.missing #audio-play,
+.audio-player.missing .audio-track { opacity: .35; pointer-events: none; }
+
+/* =========================================================
+   Replay button (appears once every trinket is in colour)
+   ========================================================= */
+.replay-btn {
+  position: absolute;
+  right: 35px; top: 17px;
+  height: 44px; padding: 0 20px 0 14px;
+  display: flex; align-items: center; gap: 10px;
+  background: transparent; color: #fff;
+  border: 2px solid #fff; border-radius: 22px;
+  font-size: 20px;
+  opacity: 0; visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity .5s ease, transform .5s ease, visibility 0s linear .5s,
+              background .2s ease, color .2s ease;
+}
+.replay-btn.show {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity .7s ease 1s, transform .7s ease 1s, visibility 0s,
+              background .2s ease, color .2s ease;
+}
+.replay-btn:hover, .replay-btn:focus-visible { background: #fff; color: #000; outline: none; }
+.replay-btn svg { transition: transform .5s ease; }
+.replay-btn:hover svg { transform: rotate(-360deg); }
+
+/* =========================================================
+   Opening lines + title card
+   ========================================================= */
+#intro, #titlecard {
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+}
+
+.intro-line {
+  margin: 0;
+  padding: 0 120px;
+  font-size: 32px;
+  line-height: 1.4;
+  min-height: 1.4em;
+}
+.intro-line.typing::after,
+.intro-line.done::after {
+  content: "_";
+  animation: blink 1s steps(1) infinite;
+}
+.intro-line.fading { opacity: 0; transition: opacity .35s ease; }
+
+#titlecard .title {
+  margin: 0;
+  font-size: 84px;
+  font-weight: 700;
+  letter-spacing: -3px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 1.4s ease .3s, transform 1.4s ease .3s;
+}
+#titlecard .subtitle {
+  margin: 18px 0 0;
+  font-size: 30px;
+  font-style: italic;
+  opacity: 0;
+  transition: opacity 1.4s ease 1.3s;
+}
+#titlecard.active .title { opacity: 1; transform: none; }
+#titlecard.active .subtitle { opacity: .8; }
+
+/* Bottom hint: fades out after the first click, back in when idle */
+#prompt { transition: opacity .8s ease; }
+#prompt.hint-hidden { opacity: 0; }
+
+/* =========================================================
+   The ending: chest + letter
+   ========================================================= */
+.chest {
+  position: absolute;
+  left: 690px; top: 730px;
+  width: 130px; height: 108px;
+  padding: 0; border: 0; background: none;
+  z-index: 15;
+  opacity: 0; visibility: hidden;
+  transform: translateY(30px) scale(.6);
+  transition: opacity .5s ease, transform .5s ease, visibility 0s linear .5s;
+}
+.chest svg { display: block; overflow: visible; }
+.chest.show {
+  opacity: 1; visibility: visible;
+  transform: none;
+  transition: opacity .5s ease, transform .7s cubic-bezier(.3, 1.6, .5, 1), visibility 0s;
+  animation: chest-glow 2.4s ease-in-out .8s infinite;
+}
+.chest.show:hover, .chest.show:focus-visible { transform: translateY(-5px); outline: none; }
+.chest.open { animation: none; }
+@keyframes chest-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 225, 150, .5)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(255, 225, 150, 1)); }
+}
+
+.chest-lid {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform .6s cubic-bezier(.3, 1.4, .5, 1);
+}
+/* lid tips back: it rises and flattens, like we're seeing it from the front */
+.chest.open .chest-lid { transform: translateY(-14px) scaleY(.5); }
+.chest-light { opacity: 0; transition: opacity .6s ease .15s; }
+.chest.open .chest-light { opacity: 1; }
+
+/* twinkling stars around the closed chest */
+.chest-sparkles i {
+  position: absolute;
+  width: 10px; height: 10px;
+  background: #fff4c8;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+}
+.chest.show:not(.open) .chest-sparkles i { animation: twinkle 1.8s ease-in-out infinite; }
+.chest-sparkles i:nth-child(1) { left: -6px;  top: 18px; }
+.chest-sparkles i:nth-child(2) { left: 52px;  top: -14px; animation-delay: .45s !important; }
+.chest-sparkles i:nth-child(3) { right: -8px; top: 26px;  animation-delay: .9s !important; }
+.chest-sparkles i:nth-child(4) { right: 20px; top: -2px;  animation-delay: 1.35s !important; width: 7px; height: 7px; }
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(.4); }
+  50%      { opacity: 1; transform: scale(1); }
+}
+
+/* The letter */
+.letter {
+  position: absolute;
+  left: 210px; top: 34px;
+  width: 1080px; height: 776px;
+  padding: 50px 60px 40px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 27px, rgba(121, 92, 124, .12) 27px 28px),
+    #fbf6ec;
+  background-position: 0 46px;
+  border-radius: 6px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .35);
+  color: #5b4560;
+  z-index: 25;
+  opacity: 0; visibility: hidden;
+  transform: translateY(60px) rotate(-1.2deg) scale(.92);
+  transition: opacity .5s ease, transform .6s ease, visibility 0s linear .6s;
+  display: flex; flex-direction: column;
+}
+.letter.show {
+  opacity: 1; visibility: visible;
+  transform: rotate(-1.2deg);
+  transition: opacity .6s ease, transform .7s cubic-bezier(.3, 1.3, .5, 1), visibility 0s;
+}
+#letter-title {
+  margin: 0 0 18px;
+  font-size: 26px;
+  letter-spacing: -1px;
+  color: var(--plum);
+}
+#letter-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  font-size: 15px;
+  line-height: 28px;          /* sits on the paper lines */
+  letter-spacing: -.6px;
+  columns: 2;                 /* two columns, like a letter */
+  column-gap: 56px;
+  column-fill: auto;
+}
+#letter-body p { margin: 0 0 28px; }
+#letter-title:empty { display: none; }
+#letter-body p:last-child { margin-bottom: 0; }
+#letter-sign {
+  margin: 18px 0 0;
+  text-align: right;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--plum);
+}
+#letter-close {
+  position: absolute;
+  right: -14px; top: -14px;
+  width: 44px; height: 44px;
+  border: 4px solid #fbf6ec; border-radius: 50%;
+  padding: 0;
+  background: var(--plum); color: #fbf6ec;
+  font-size: 26px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s ease;
+}
+#letter-close:hover, #letter-close:focus-visible { transform: scale(1.1) rotate(90deg); outline: none; }

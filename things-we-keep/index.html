@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Things We Keep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- The whole site is drawn on one 1920 x 1080 "stage" (same as your Figma frames)
+       and scaled to fit the window. All positions below match Figma. -->
+  <div id="stage">
+
+    <!-- Black screen frame behind everything (Figma: frame border + Rectangle 2 & 3) -->
+    <div id="panel"></div>
+
+    <!-- Top black bar: sound + dark mode -->
+    <div class="bar bar-top">
+      <button id="sound-btn" class="icon-btn" aria-label="Mute music" title="Sound on/off">
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+          <path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/>
+          <path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path class="wave" d="M18 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path class="mute-x" d="M16 9l6 6M22 9l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <span id="progress" class="progress" aria-live="polite"></span>
+      <label class="dark-label">
+        <span>Dark Mode:</span>
+        <button id="dark-btn" class="toggle" role="switch" aria-checked="false" aria-label="Dark mode"><span class="knob"></span></button>
+      </label>
+    </div>
+
+    <!-- The framed "screen" (Figma: Frame 7, 1500 x 844) -->
+    <div id="window">
+
+      <!-- ===== SCENE 0a: OPENING LINES ===== -->
+      <section id="intro" class="scene active" aria-label="Introduction">
+        <p id="intro-line" class="intro-line" aria-live="polite"></p>
+      </section>
+
+      <!-- ===== SCENE 0b: TITLE CARD ===== -->
+      <section id="titlecard" class="scene" aria-label="Title">
+        <h1 class="title">The Things We Keep</h1>
+        <p class="subtitle">A collection of love by Suki Sodhi</p>
+      </section>
+
+      <!-- ===== SCENE 1: HALLWAY (bedroom further down) ===== -->
+      <section id="hallway" class="scene" aria-label="Hallway">
+        <img class="scene-bg" src="assets/hallway-bg.png" alt="" data-label="hallway-bg.png">
+        <button id="door" aria-label="Open the bedroom door">
+          <img src="assets/door.png" alt="A white bedroom door" data-label="door.png">
+        </button>
+      </section>
+
+      <!-- ===== SCENE 2: BEDROOM / BOOKSHELF ===== -->
+      <section id="bedroom" class="scene" aria-label="Bedroom with a bookshelf">
+        <img class="scene-bg" src="assets/bedroom-bg.png" alt="" data-label="bedroom-bg.png">
+
+        <!-- Trinkets are added here by script.js, using content.js -->
+        <div id="shelf-items"></div>
+
+        <!-- Pop-up (Figma: Rectangle 4 + Rectangle 6) -->
+        <div id="popup" role="dialog" aria-modal="false" aria-labelledby="popup-title" hidden>
+          <button id="popup-close" aria-label="Close">×</button>
+          <div class="popup-intro">
+            <h2 id="popup-title"></h2>
+            <p class="popup-owner"></p>
+            <p class="popup-quote"></p>
+          </div>
+          <!-- Photo slideshow -->
+          <div class="popup-photo">
+            <div id="slides"></div>
+            <button id="slide-prev" class="slide-arrow prev" aria-label="Previous photo">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button id="slide-next" class="slide-arrow next" aria-label="Next photo">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span id="slide-count" class="slide-count"></span>
+          </div>
+
+          <p class="popup-p1"></p>
+          <p class="popup-p2"></p>
+
+          <!-- Interview audio clip -->
+          <div id="audio-player" class="audio-player">
+            <button id="audio-play" aria-label="Play interview clip">
+              <svg class="i-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg>
+              <svg class="i-pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="currentColor"/></svg>
+            </button>
+            <span id="audio-label" class="audio-label">from the interview</span>
+            <div id="audio-track" class="audio-track"><div id="audio-fill" class="audio-fill"></div></div>
+            <span id="audio-time" class="audio-time"></span>
+          </div>
+        </div>
+
+        <!-- The ending: a little chest on the floor -->
+        <button id="chest" class="chest" aria-label="Open the little chest">
+          <svg viewBox="0 0 120 100" width="130" height="108" aria-hidden="true">
+            <ellipse cx="60" cy="93" rx="54" ry="6" fill="rgba(0,0,0,.28)"/>
+            <ellipse class="chest-light" cx="60" cy="44" rx="44" ry="16" fill="#ffe7a3"/>
+            <!-- base -->
+            <rect x="10" y="44" width="100" height="47" rx="4" fill="#8a5a3b" stroke="#3b2416" stroke-width="2.5"/>
+            <rect x="10" y="44" width="100" height="8" fill="#6e4329"/>
+            <rect x="22" y="44" width="9" height="47" fill="#d4a94a" stroke="#7a5a1c" stroke-width="1.5"/>
+            <rect x="89" y="44" width="9" height="47" fill="#d4a94a" stroke="#7a5a1c" stroke-width="1.5"/>
+            <rect x="51" y="50" width="18" height="17" rx="3" fill="#e2b955" stroke="#7a5a1c" stroke-width="1.5"/>
+            <circle cx="60" cy="57" r="2.3" fill="#5a3e10"/>
+            <rect x="58.8" y="57" width="2.4" height="5" fill="#5a3e10"/>
+            <!-- lid -->
+            <g class="chest-lid">
+              <path d="M10 44 V30 Q60 4 110 30 V44 Z" fill="#9b6844" stroke="#3b2416" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="M22 44 V25 Q26 22 31 20.5 V44 Z" fill="#d4a94a" stroke="#7a5a1c" stroke-width="1.5"/>
+              <path d="M89 44 V20.5 Q94 22 98 25 V44 Z" fill="#d4a94a" stroke="#7a5a1c" stroke-width="1.5"/>
+              <path d="M18 30 Q60 10 102 30" fill="none" stroke="#b98058" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+            </g>
+          </svg>
+          <span class="chest-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        </button>
+
+        <!-- The letter inside the chest -->
+        <div id="letter" class="letter" role="dialog" aria-labelledby="letter-title">
+          <button id="letter-close" aria-label="Close the letter">×</button>
+          <h2 id="letter-title"></h2>
+          <div id="letter-body"></div>
+          <p id="letter-sign"></p>
+        </div>
+      </section>
+
+      <div id="fade"></div>
+    </div>
+    <div id="window-border"></div>
+
+    <!-- Bottom black bar: the narrator line -->
+    <div class="bar bar-bottom">
+      <p id="prompt" class="hint-hidden"></p>
+      <button id="replay-btn" class="replay-btn" aria-label="Replay from the start">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        replay
+      </button>
+    </div>
+  </div>
+
+  <script src="content.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
